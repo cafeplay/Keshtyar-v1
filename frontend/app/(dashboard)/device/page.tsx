@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { get } from '@/lib/api-client'
-import { Microchip, Copy, Check, Wifi, WifiOff, Clock } from 'lucide-react'
+import { Cpu, Copy, Check, Wifi, WifiOff, Clock } from 'lucide-react'
 
 interface DeviceConfig {
   device_code: string
@@ -65,7 +65,7 @@ export default function DevicePage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
-        <Microchip className="w-6 h-6 text-emerald-600" />
+        <Cpu className="w-6 h-6 text-emerald-600" />
         <h1 className="text-2xl font-bold text-gray-800 dark:text-white">تنظیمات دستگاه</h1>
       </div>
       
