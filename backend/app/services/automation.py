@@ -83,4 +83,21 @@ async def evaluate_automation_rules(
                 relay.state = rule.action_state
                 await db.commit()
                 
-                command_id = str(u
+                command_id = str(uuid.uuid4())
+                command = CommandLog(
+                    user_id=user_id,
+                    command_id=command_id,
+                    command_type="relay_set",
+                    payload=json.dumps({"gpio": relay.gpio, "state": rule.action_state}),
+                    acknowledged=False
+                )
+                db.add(command)
+                await db.commit()
+                
+                commands.append({
+                    "id": command_id,
+                    "type": "relay_set",
+                    "payload": {"gpio": relay.gpio, "state": rule.action_state}
+                })
+    
+    return commands
