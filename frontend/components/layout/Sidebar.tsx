@@ -9,7 +9,7 @@ import {
   Settings,
   Bell,
   UserCog,
-  Microchip,
+  Cpu,
   Leaf,
   X
 } from 'lucide-react'
@@ -26,7 +26,7 @@ const menuItems = [
   { icon: Settings, label: 'قوانین', href: '/rules' },
   { icon: Bell, label: 'هشدارها', href: '/alerts' },
   { icon: UserCog, label: 'تنظیمات', href: '/settings' },
-  { icon: Microchip, label: 'دستگاه', href: '/device' },
+  { icon: Cpu, label: 'دستگاه', href: '/device' },
 ]
 
 export function Sidebar({ open, onClose }: SidebarProps) {
