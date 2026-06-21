@@ -46,12 +46,16 @@ export function useAuth() {
     })
     
     localStorage.setItem('access_token', response.access_token)
+    // کوکی هم تنظیم کن برای middleware
+    document.cookie = `access_token=${response.access_token}; path=/`
+    
     await fetchUser()
     return response
   }
   
   const logout = () => {
     localStorage.removeItem('access_token')
+    document.cookie = 'access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
     setUser(null)
   }
   
