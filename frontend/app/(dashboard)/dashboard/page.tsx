@@ -8,6 +8,7 @@ import { WeatherWidget } from '@/components/widgets/WeatherWidget'
 import { SoilChart } from '@/components/widgets/SoilChart'
 import { useSensorData } from '@/hooks/useSensorData'
 import { useAI } from '@/hooks/useAI'
+import { Leaf, Plus } from 'lucide-react'
 
 export default function DashboardPage() {
   const { data, loading } = useSensorData()
@@ -24,7 +25,7 @@ export default function DashboardPage() {
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto"></div>
-          <p className="mt-4 text-gray-500">در حال بارگذاری...</p>
+          <p className="mt-4 text-gray-500 dark:text-gray-400">در حال بارگذاری...</p>
         </div>
       </div>
     )
@@ -33,16 +34,19 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6 pb-10">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-wrap justify-between items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">سلام، احمد 👋</h1>
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
+            <Leaf className="w-7 h-7 text-emerald-600" />
+            سلام، احمد 👋
+          </h1>
           <p className="text-gray-400 text-sm">۲۱ خرداد ۱۴۰۴ • ۱۴:۳۰</p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="w-10 h-10 rounded-full bg-emerald-600 text-white hover:bg-emerald-700 transition flex items-center justify-center text-xl">
-            +
+          <button className="w-10 h-10 rounded-full bg-emerald-600 text-white hover:bg-emerald-700 transition flex items-center justify-center">
+            <Plus className="w-5 h-5" />
           </button>
-          <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
+          <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 flex items-center justify-center font-bold">
             ا
           </div>
         </div>
