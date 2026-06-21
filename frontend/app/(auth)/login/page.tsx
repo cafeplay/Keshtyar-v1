@@ -21,6 +21,7 @@ export default function LoginPage() {
     try {
       await login(deviceCode, password)
       router.push('/dashboard')
+      router.refresh() // 🔥 مهم: صفحه رو رفرش کن تا middleware اثر کنه
     } catch (err: any) {
       setError(err.response?.data?.detail || 'خطا در ورود')
     } finally {
