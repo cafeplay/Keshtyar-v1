@@ -284,4 +284,22 @@ export default function RegisterPage() {
                   disabled={loading}
                   className="flex-1 py-3 rounded-xl bg-emerald-600 text-white font-medium hover:bg-emerald-700 transition disabled:opacity-50"
                 >
-                  {loading ? 'در حال ثبت‌
+                  {loading ? 'در حال ثبت‌نام...' : 'ثبت‌نام نهایی'}
+                </button>
+              )}
+            </div>
+          </form>
+          
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-400 dark:text-gray-500">
+              قبلاً ثبت‌نام کرده‌اید؟{' '}
+              <a href="/login" className="text-emerald-600 dark:text-emerald-400 hover:underline">
+                وارد شوید
+              </a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
