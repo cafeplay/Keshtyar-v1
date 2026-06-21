@@ -9,7 +9,6 @@ module.exports = {
     extend: {
       fontFamily: {
         sans: ['Vazirmatn', 'sans-serif'],
-        inter: ['Inter', 'sans-serif']
       },
       borderRadius: {
         card: '24px',
@@ -26,8 +25,12 @@ module.exports = {
           600: '#43A047',
           700: '#388E3C',
           800: '#2E7D32',
-          900: '#1B5E20'
+          900: '#1B5E20',
         }
+      },
+      animation: {
+        'spin-slow': 'spin 3s linear infinite',
+        'pulse-soft': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       }
     }
   },
