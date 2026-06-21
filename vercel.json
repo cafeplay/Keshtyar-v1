@@ -1,14 +1,31 @@
 {
   "version": 2,
-  "experimentalServices": {
-    "frontend": {
-      "root": "frontend",
-      "routePrefix": "/",
-      "framework": "nextjs"
+  "builds": [
+    {
+      "src": "frontend/package.json",
+      "use": "@vercel/next"
     },
-    "backend": {
-      "root": "backend",
-      "routePrefix": "/_/backend"
+    {
+      "src": "backend/main.py",
+      "use": "@vercel/python"
     }
-  }
+  ],
+  "routes": [
+    {
+      "src": "/api/v1/(.*)",
+      "dest": "/backend/main.py"
+    },
+    {
+      "src": "/api/sensor",
+      "dest": "/backend/main.py"
+    },
+    {
+      "src": "/api/command/(.*)",
+      "dest": "/backend/main.py"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/frontend/$1"
+    }
+  ]
 }
