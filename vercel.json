@@ -7,6 +7,7 @@
     },
     "backend": {
       "root": "backend",
+      "routePrefix": "/api",
       "entrypoint": "main.py"
     }
   }
