@@ -1,3 +1,9 @@
+import sys
+import os
+
+# اضافه کردن مسیر backend به sys.path
+sys.path.insert(0, os.path.dirname(__file__))
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.v1 import auth_router, dashboard_router, relays_router, rules_router, alerts_router, history_router, settings_router, ai_router
@@ -29,5 +35,4 @@ app.include_router(ack_router, tags=["legacy"])
 async def root():
     return {"message": "Smart Agriculture API", "version": "2.0.0"}
 
-# برای Vercel
 app = app
