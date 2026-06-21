@@ -4,10 +4,10 @@ import { useState } from 'react'
 import DatePicker from 'react-multi-date-picker'
 import persian from 'react-date-object/calendars/persian'
 import persian_fa from 'react-date-object/locales/persian_fa'
-import "react-multi-date-picker/styles/colors/red.css"
-import "react-multi-date-picker/styles/backgrounds/red.css"
-import "react-multi-date-picker/styles/colors/green.css"
 import { Calendar, Search } from 'lucide-react'
+
+// اضافه کردن استایل به صورت دستی
+import 'react-multi-date-picker/styles/layouts/mobile.css'
 
 interface HistoryCalendarProps {
   onDateChange: (from: Date, to: Date) => void
