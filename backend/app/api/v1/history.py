@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, Query
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.core.security import get_current_user
 from app.models.user import User
@@ -10,23 +9,18 @@ from datetime import datetime, timedelta
 router = APIRouter()
 
 @router.get("/")
-async def get_history(
+def get_history(
     days: int = Query(7, ge=1, le=90),
     user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
     since = datetime.utcnow() - timedelta(days=days)
     
-    result = await db.execute(
-        select(SensorData)
-        .where(
-            SensorData.user_id == user.id,
-            SensorData.timestamp >= since,
-            SensorData.soil_moisture.isnot(None)
-        )
-        .order_by(SensorData.timestamp.asc())
-    )
-    data = result.scalars().all()
+    data = db.query(SensorData).filter(
+        SensorData.user_id == user.id,
+        SensorData.timestamp >= since,
+        SensorData.soil_moisture.isnot(None)
+    ).order_by(SensorData.timestamp.asc()).all()
     
     return [
         {
@@ -41,11 +35,11 @@ async def get_history(
     ]
 
 @router.get("/range")
-async def get_history_range(
+def get_history_range(
     from_date: str = Query(..., description="YYYY-MM-DD"),
     to_date: str = Query(..., description="YYYY-MM-DD"),
     user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
     try:
         from_dt = datetime.fromisoformat(from_date)
@@ -54,17 +48,12 @@ async def get_history_range(
         from_dt = datetime.utcnow() - timedelta(days=7)
         to_dt = datetime.utcnow()
     
-    result = await db.execute(
-        select(SensorData)
-        .where(
-            SensorData.user_id == user.id,
-            SensorData.timestamp >= from_dt,
-            SensorData.timestamp <= to_dt,
-            SensorData.soil_moisture.isnot(None)
-        )
-        .order_by(SensorData.timestamp.asc())
-    )
-    data = result.scalars().all()
+    data = db.query(SensorData).filter(
+        SensorData.user_id == user.id,
+        SensorData.timestamp >= from_dt,
+        SensorData.timestamp <= to_dt,
+        SensorData.soil_moisture.isnot(None)
+    ).order_by(SensorData.timestamp.asc()).all()
     
     return [
         {
@@ -76,4 +65,4 @@ async def get_history_range(
             "tank_liters": d.tank_liters
         }
         for d in data
-  ]
+    ]
