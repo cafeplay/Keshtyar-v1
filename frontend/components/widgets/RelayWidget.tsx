@@ -25,9 +25,31 @@ export function RelayWidget({ relays: initialRelays }: RelayWidgetProps) {
   
   const toggleRelay = (id: string) => {
     const relay = relays.find(r => r.id === id)
+    
+    // اگر رله خودکار بود، سوال بپرس
     if (relay?.mode === 'auto') {
-      alert('⚠️ این رله توسط هوش مصنوعی مدیریت می‌شود. تغییر دستی ممکن است با تصمیمات سیستم تداخل داشته باشد.')
+      const confirmChange = window.confirm(
+        '⚠️ این رله توسط هوش مصنوعی مدیریت می‌شود.\n\n' +
+        'اگر وضعیت آن را تغییر دهید، رله از حالت خودکار به دستی تغییر می‌کند.\n\n' +
+        'آیا ادامه می‌دهید؟'
+      )
+      
+      if (!confirmChange) {
+        return // هیچ تغییری نکن
+      }
+      
+      // تغییر حالت به دستی
+      setRelays(prev =>
+        prev.map(r =>
+          r.id === id ? { ...r, state: !r.state, mode: 'manual' } : r
+        )
+      )
+      
+      // ارسال به API (در اینجا باید منطق API رو هم اضافه کنی)
+      return
     }
+    
+    // اگر دستی بود، فقط وضعیت رو عوض کن
     setRelays(prev =>
       prev.map(r => r.id === id ? { ...r, state: !r.state } : r)
     )
@@ -35,8 +57,8 @@ export function RelayWidget({ relays: initialRelays }: RelayWidgetProps) {
   
   return (
     <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-card p-5 shadow-sm border border-white/40 dark:border-gray-700/40">
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="font-semibold text-gray-800 dark:text-white flex items-center gap-2">
+      <div className="flex flex-wrap justify-between items-center gap-3 mb-4">
+        <h3 className="font-semibold text-gray-800 dark:text-white flex items-center gap-2 text-base">
           <Zap className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
           کنترل سریع رله‌ها
         </h3>
@@ -46,7 +68,7 @@ export function RelayWidget({ relays: initialRelays }: RelayWidgetProps) {
         </a>
       </div>
       
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {relays.map((relay) => (
           <div
             key={relay.id}
@@ -56,9 +78,9 @@ export function RelayWidget({ relays: initialRelays }: RelayWidgetProps) {
                 : 'bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700'
             }`}
           >
-            <div className="flex items-center justify-between">
-              <span className="font-medium text-sm text-gray-700 dark:text-gray-300">{relay.name}</span>
-              <span className={`text-xs px-2 py-0.5 rounded-full ${
+            <div className="flex flex-wrap items-center justify-between gap-1">
+              <span className="font-medium text-sm text-gray-700 dark:text-gray-300 truncate">{relay.name}</span>
+              <span className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${
                 relay.state 
                   ? 'bg-emerald-200 dark:bg-emerald-800/50 text-emerald-800 dark:text-emerald-300' 
                   : 'bg-gray-300 dark:bg-gray-600 text-gray-600 dark:text-gray-400'
@@ -90,7 +112,7 @@ export function RelayWidget({ relays: initialRelays }: RelayWidgetProps) {
                   </>
                 ) : (
                   <>
-                    <Circle className="w-2 h-2" />
+                    <Circle className="w-2 h-2 fill-current" />
                     دستی
                   </>
                 )}
