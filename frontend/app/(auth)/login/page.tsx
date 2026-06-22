@@ -21,9 +21,11 @@ export default function LoginPage() {
     try {
       await login(deviceCode, password)
       router.push('/dashboard')
-      router.refresh() // 🔥 مهم: صفحه رو رفرش کن تا middleware اثر کنه
+      router.refresh()
     } catch (err: any) {
       setError(err.response?.data?.detail || 'خطا در ورود')
+      // خطا برای ۵ ثانیه نمایش داده میشه (نه یک لحظه)
+      setTimeout(() => setError(''), 5000)
     } finally {
       setLoading(false)
     }
@@ -32,14 +34,14 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#F9F8F6] dark:bg-[#121212] p-4">
       <div className="w-full max-w-md">
-        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-card p-8 shadow-sm border border-white/40 dark:border-gray-700/40">
+        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-card p-8 shadow-sm border border-white/40 dark:border-gray-700/40 animate-fadeInUp">
           <div className="text-center mb-8">
-            <div className="flex justify-center mb-4">
+            <div className="flex justify-center mb-4 animate-bounceIn">
               <div className="w-16 h-16 rounded-2xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
                 <Leaf className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
               </div>
             </div>
-            <h1 className="text-2xl font-bold text-gray-800 dark:text-white">ورود به Agrova</h1>
+            <h1 className="text-2xl font-bold text-gray-800 dark:text-white">ورود به کشت‌یار</h1>
             <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">دستیار هوشمند کشاورزی</p>
           </div>
           
@@ -80,15 +82,15 @@ export default function LoginPage() {
             </div>
             
             {error && (
-              <div className="p-3 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm">
-                {error}
+              <div className="p-3 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm animate-shake">
+                ⚠️ {error}
               </div>
             )}
             
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 rounded-xl bg-emerald-600 text-white font-medium hover:bg-emerald-700 transition disabled:opacity-50"
+              className="w-full py-3 rounded-xl bg-emerald-600 text-white font-medium hover:bg-emerald-700 transition disabled:opacity-50 hover:scale-[1.02] active:scale-[0.98]"
             >
               {loading ? 'در حال ورود...' : 'ورود'}
             </button>
