@@ -34,28 +34,30 @@ export function Sidebar({ open, onClose }: SidebarProps) {
   
   return (
     <>
+      {/* Overlay - فقط وقتی باز باشه نمایش داده بشه */}
       {open && (
         <div 
-          className="fixed inset-0 bg-black/30 z-40 md:hidden"
+          className="fixed inset-0 bg-black/50 z-40"
           onClick={onClose}
         />
       )}
       
+      {/* Sidebar - وقتی بسته است، کاملاً از صفحه خارج بشه */}
       <aside className={`
-        fixed top-0 right-0 h-full w-72 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-l border-gray-100 dark:border-gray-800
-        transition-transform duration-300 z-50
+        fixed top-0 right-0 h-full w-72 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md 
+        border-l border-gray-100 dark:border-gray-800
+        transition-transform duration-300 ease-in-out z-50
         ${open ? 'translate-x-0' : 'translate-x-full'}
-        md:translate-x-0 md:relative md:z-0
-        flex flex-col
+        overflow-y-auto
       `}>
         <div className="p-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Leaf className="w-6 h-6 text-emerald-600" />
-            <span className="text-xl font-bold text-emerald-700 dark:text-emerald-400">Agrova</span>
+            <span className="text-xl font-bold text-emerald-700 dark:text-emerald-400">کشت‌یار</span>
           </div>
           <button 
             onClick={onClose}
-            className="md:hidden p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+            className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition"
           >
             <X className="w-5 h-5 text-gray-500" />
           </button>
