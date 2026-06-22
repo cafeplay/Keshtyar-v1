@@ -31,14 +31,17 @@ export default function RegisterPage() {
     if (step === 1) {
       if (formData.device_code.length !== 8) {
         setError('کد یکتا باید ۸ کاراکتر باشد')
+        setTimeout(() => setError(''), 5000)
         return
       }
       if (formData.password.length < 4) {
         setError('رمز عبور باید حداقل ۴ کاراکتر باشد')
+        setTimeout(() => setError(''), 5000)
         return
       }
       if (formData.password !== formData.password_confirm) {
         setError('رمز عبور و تکرار آن مطابقت ندارند')
+        setTimeout(() => setError(''), 5000)
         return
       }
     }
@@ -68,6 +71,7 @@ export default function RegisterPage() {
       router.push('/login?registered=true')
     } catch (err: any) {
       setError(err.response?.data?.detail || 'خطا در ثبت‌نام')
+      setTimeout(() => setError(''), 5000)
     } finally {
       setLoading(false)
     }
@@ -76,20 +80,20 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#F9F8F6] dark:bg-[#121212] p-4">
       <div className="w-full max-w-md">
-        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-card p-8 shadow-sm border border-white/40 dark:border-gray-700/40">
+        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-card p-8 shadow-sm border border-white/40 dark:border-gray-700/40 animate-fadeInUp">
           <div className="text-center mb-6">
-            <div className="flex justify-center mb-3">
+            <div className="flex justify-center mb-3 animate-bounceIn">
               <div className="w-14 h-14 rounded-2xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
                 <Leaf className="w-7 h-7 text-emerald-600 dark:text-emerald-400" />
               </div>
             </div>
-            <h1 className="text-xl font-bold text-gray-800 dark:text-white">ثبت‌نام در Agrova</h1>
+            <h1 className="text-xl font-bold text-gray-800 dark:text-white">ثبت‌نام در کشت‌یار</h1>
             <p className="text-sm text-gray-400 dark:text-gray-500">مرحله {step} از ۳</p>
           </div>
           
           <form onSubmit={handleSubmit}>
             {step === 1 && (
-              <div className="space-y-4">
+              <div className="space-y-4 animate-slideIn">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     کد یکتا دستگاه
@@ -149,7 +153,7 @@ export default function RegisterPage() {
             )}
             
             {step === 2 && (
-              <div className="space-y-4">
+              <div className="space-y-4 animate-slideIn">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     نام مزرعه
@@ -188,7 +192,7 @@ export default function RegisterPage() {
             )}
             
             {step === 3 && (
-              <div className="space-y-4">
+              <div className="space-y-4 animate-slideIn">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     موقعیت مکانی مزرعه
@@ -250,8 +254,8 @@ export default function RegisterPage() {
             )}
             
             {error && (
-              <div className="mt-4 p-3 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm">
-                {error}
+              <div className="mt-4 p-3 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm animate-shake">
+                ⚠️ {error}
               </div>
             )}
             
@@ -271,7 +275,7 @@ export default function RegisterPage() {
                 <button
                   type="button"
                   onClick={nextStep}
-                  className="flex-1 py-3 rounded-xl bg-emerald-600 text-white font-medium hover:bg-emerald-700 transition flex items-center justify-center gap-1"
+                  className="flex-1 py-3 rounded-xl bg-emerald-600 text-white font-medium hover:bg-emerald-700 transition flex items-center justify-center gap-1 hover:scale-[1.02] active:scale-[0.98]"
                 >
                   بعدی
                   <ChevronLeft className="w-4 h-4" />
@@ -280,7 +284,7 @@ export default function RegisterPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 py-3 rounded-xl bg-emerald-600 text-white font-medium hover:bg-emerald-700 transition disabled:opacity-50"
+                  className="flex-1 py-3 rounded-xl bg-emerald-600 text-white font-medium hover:bg-emerald-700 transition disabled:opacity-50 hover:scale-[1.02] active:scale-[0.98]"
                 >
                   {loading ? 'در حال ثبت‌نام...' : 'ثبت‌نام نهایی'}
                 </button>
