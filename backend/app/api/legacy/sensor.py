@@ -1,9 +1,8 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import Optional
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-from app.core.database import AsyncSessionLocal
+from sqlalchemy.orm import Session
+from app.core.database import SessionLocal
 from app.models.user import User
 from app.models.sensor import SensorData
 from app.models.relay import Relay
@@ -23,13 +22,15 @@ class SensorPayload(BaseModel):
     tank_distance_mm: Optional[float] = None
 
 @router.post("/api/sensor")
-async def sensor_endpoint(payload: SensorPayload):
-    async with AsyncSessionLocal() as db:
-        result = await db.execute(select(User).where(User.device_code == payload.device_code))
-        user = result.scalar_one_or_none()
+def sensor_endpoint(payload: SensorPayload):
+    db = SessionLocal()
+    try:
+        # یافتن کاربر
+        user = db.query(User).filter(User.device_code == payload.device_code).first()
         if not user:
             raise HTTPException(status_code=401, detail="کد یکتا نامعتبر")
         
+        # محاسبه‌ی درصد رطوبت خاک
         soil_percent = None
         if payload.soil_moisture_raw is not None:
             dry = user.soil_dry_raw or 3500
@@ -42,6 +43,7 @@ async def sensor_endpoint(payload: SensorPayload):
                 else:
                     soil_percent = ((dry - payload.soil_moisture_raw) / (dry - wet)) * 100
         
+        # ذخیره‌ی داده
         sensor = SensorData(
             user_id=user.id,
             temperature=payload.temperature,
@@ -51,6 +53,7 @@ async def sensor_endpoint(payload: SensorPayload):
             tank_distance_mm=payload.tank_distance_mm
         )
         
+        # محاسبه‌ی سطح تانک
         height = user.tank_height_mm or 1000
         capacity = user.tank_capacity_liters or 10000
         if sensor.tank_distance_mm is not None and sensor.tank_distance_mm > 0:
@@ -63,14 +66,15 @@ async def sensor_endpoint(payload: SensorPayload):
                 sensor.tank_liters = (sensor.tank_level_percent / 100) * capacity
         
         db.add(sensor)
-        await db.commit()
-        await db.refresh(sensor)
+        db.commit()
+        db.refresh(sensor)
         
-        relay_result = await db.execute(select(Relay).where(Relay.user_id == user.id))
-        relays = relay_result.scalars().all()
+        # دریافت وضعیت رله‌ها
+        relays = db.query(Relay).filter(Relay.user_id == user.id).all()
         relay_states = {str(r.gpio): r.state for r in relays}
         
-        commands = await evaluate_automation_rules(
+        # ارزیابی قوانین اتوماسیون
+        commands = evaluate_automation_rules(
             db,
             user.id,
             current_soil=sensor.soil_moisture or 0,
@@ -78,13 +82,11 @@ async def sensor_endpoint(payload: SensorPayload):
             current_tank=sensor.tank_level_percent or 0
         )
         
-        cmd_result = await db.execute(
-            select(CommandLog).where(
-                CommandLog.user_id == user.id,
-                CommandLog.acknowledged == False
-            )
-        )
-        pending = cmd_result.scalars().all()
+        # دریافت فرمان‌های منتظر
+        pending = db.query(CommandLog).filter(
+            CommandLog.user_id == user.id,
+            CommandLog.acknowledged == False
+        ).all()
         
         for cmd in pending:
             commands.append({
@@ -93,17 +95,21 @@ async def sensor_endpoint(payload: SensorPayload):
                 "payload": json.loads(cmd.payload) if cmd.payload else {}
             })
         
-        forecast = await get_weather_forecast(user.latitude, user.longitude)
+        # هشدارها
+        forecast = get_weather_forecast(user.latitude, user.longitude)
         sensor_dict = {
             'soil_moisture': sensor.soil_moisture,
             'temperature': sensor.temperature,
             'tank_level': sensor.tank_level_percent
         }
-        sms_requests = await check_alert_rules(db, user.id, sensor_dict, sensor.tank_liters, forecast)
+        sms_requests = check_alert_rules(db, user.id, sensor_dict, sensor.tank_liters, forecast)
         
         return {
             "status": "ok",
             "relay_states": relay_states,
             "commands": commands,
             "sms_requests": sms_requests
-      }
+        }
+        
+    finally:
+        db.close()
