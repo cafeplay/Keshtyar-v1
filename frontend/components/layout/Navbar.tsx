@@ -30,25 +30,25 @@ export function Navbar({ onMenuClick }: NavbarProps) {
         <div className="flex items-center gap-3">
           <button 
             onClick={onMenuClick}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 md:hidden"
+            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition"
           >
             <Menu className="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </button>
           <span className="text-sm text-gray-400 dark:text-gray-500 hidden md:inline">
-            🌱 داشبورد مدیریت مزرعه
+            🌱 کشت‌یار - مدیریت هوشمند مزرعه
           </span>
         </div>
         
         <div className="flex items-center gap-3">
           <button 
             onClick={toggleDark}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400"
+            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition"
           >
             {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </button>
           <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-            <Circle className="w-2 h-2 text-emerald-500 fill-emerald-500" />
-            <span>دستگاه آنلاین</span>
+            <Circle className="w-2 h-2 text-emerald-500 fill-emerald-500 animate-pulse-soft" />
+            <span className="hidden sm:inline">دستگاه آنلاین</span>
           </div>
         </div>
       </div>
