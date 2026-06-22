@@ -26,12 +26,14 @@
 
   html {
     direction: rtl;
+    font-size: 16px;
   }
 
   body {
     background: #F9F8F6;
     color: #1E2F2B;
     min-height: 100vh;
+    overflow-x: hidden;
   }
 
   .dark body {
@@ -39,9 +41,10 @@
     color: #f0f0f0;
   }
 
+  /* ===== Scrollbar ===== */
   ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 4px;
+    height: 4px;
   }
   ::-webkit-scrollbar-track {
     background: transparent;
@@ -59,28 +62,14 @@
 
   /* ===== Animations ===== */
   @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
   @keyframes bounceIn {
-    0% {
-      opacity: 0;
-      transform: scale(0.8);
-    }
-    60% {
-      opacity: 1;
-      transform: scale(1.05);
-    }
-    100% {
-      transform: scale(1);
-    }
+    0% { opacity: 0; transform: scale(0.8); }
+    60% { opacity: 1; transform: scale(1.05); }
+    100% { transform: scale(1); }
   }
 
   @keyframes shake {
@@ -90,14 +79,8 @@
   }
 
   @keyframes slideIn {
-    from {
-      opacity: 0;
-      transform: translateX(-20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
   }
 
   @keyframes pulse {
@@ -106,36 +89,22 @@
   }
 
   @keyframes shimmer {
-    0% {
-      background-position: -200% 0;
-    }
-    100% {
-      background-position: 200% 0;
-    }
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
   }
 
-  /* ===== Animation Classes ===== */
-  .animate-fadeInUp {
-    animation: fadeInUp 0.5s ease-out forwards;
+  @keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
   }
 
-  .animate-bounceIn {
-    animation: bounceIn 0.6s ease-out forwards;
-  }
+  .animate-fadeInUp { animation: fadeInUp 0.5s ease-out forwards; }
+  .animate-bounceIn { animation: bounceIn 0.6s ease-out forwards; }
+  .animate-shake { animation: shake 0.5s ease-in-out forwards; }
+  .animate-slideIn { animation: slideIn 0.3s ease-out forwards; }
+  .animate-pulse-soft { animation: pulse 2s ease-in-out infinite; }
+  .animate-spin-slow { animation: spin-slow 3s linear infinite; }
 
-  .animate-shake {
-    animation: shake 0.5s ease-in-out forwards;
-  }
-
-  .animate-slideIn {
-    animation: slideIn 0.3s ease-out forwards;
-  }
-
-  .animate-pulse-soft {
-    animation: pulse 2s ease-in-out infinite;
-  }
-
-  /* ===== Delays ===== */
   .delay-100 { animation-delay: 0.1s; }
   .delay-200 { animation-delay: 0.2s; }
   .delay-300 { animation-delay: 0.3s; }
@@ -147,21 +116,78 @@
   .delay-900 { animation-delay: 0.9s; }
   .delay-1000 { animation-delay: 1s; }
 
-  /* ===== Shimmer effect for loading ===== */
   .shimmer {
     background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
   }
-
   .dark .shimmer {
     background: linear-gradient(90deg, #2a2a3e 25%, #3a3a4e 50%, #2a2a3e 75%);
     background-size: 200% 100%;
   }
+
+  /* ===== Responsive Typography ===== */
+  h1 { font-size: clamp(1.5rem, 5vw, 2.5rem); }
+  h2 { font-size: clamp(1.3rem, 4vw, 2rem); }
+  h3 { font-size: clamp(1.1rem, 3.5vw, 1.5rem); }
+  p, span, label, input, button, a { font-size: clamp(0.875rem, 2vw, 1rem); }
+  .text-xs { font-size: clamp(0.65rem, 1.5vw, 0.75rem); }
+  .text-sm { font-size: clamp(0.75rem, 1.8vw, 0.875rem); }
+  .text-base { font-size: clamp(0.875rem, 2vw, 1rem); }
+  .text-lg { font-size: clamp(1rem, 2.5vw, 1.125rem); }
+  .text-xl { font-size: clamp(1.125rem, 3vw, 1.25rem); }
+  .text-2xl { font-size: clamp(1.25rem, 4vw, 1.5rem); }
+  .text-3xl { font-size: clamp(1.5rem, 5vw, 1.875rem); }
 }
 
 @layer components {
   .rounded-card {
-    border-radius: 24px;
+    border-radius: clamp(16px, 3vw, 24px);
+  }
+  .rounded-button {
+    border-radius: clamp(12px, 2vw, 16px);
+  }
+
+  /* ===== Responsive Container ===== */
+  .container-responsive {
+    width: 100%;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: clamp(12px, 3vw, 24px);
+    padding-right: clamp(12px, 3vw, 24px);
+  }
+
+  /* ===== Grid Helpers ===== */
+  .grid-responsive {
+    display: grid;
+    gap: clamp(12px, 2vw, 20px);
+  }
+  .grid-responsive-1 { grid-template-columns: 1fr; }
+  .grid-responsive-2 { grid-template-columns: 1fr; }
+  .grid-responsive-3 { grid-template-columns: 1fr; }
+  .grid-responsive-4 { grid-template-columns: 1fr; }
+
+  @media (min-width: 640px) {
+    .grid-responsive-2 { grid-template-columns: repeat(2, 1fr); }
+    .grid-responsive-4 { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (min-width: 768px) {
+    .grid-responsive-3 { grid-template-columns: repeat(2, 1fr); }
+    .grid-responsive-4 { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (min-width: 1024px) {
+    .grid-responsive-3 { grid-template-columns: repeat(3, 1fr); }
+    .grid-responsive-4 { grid-template-columns: repeat(4, 1fr); }
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 }
