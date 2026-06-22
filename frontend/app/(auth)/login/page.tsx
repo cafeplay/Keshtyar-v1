@@ -24,7 +24,6 @@ export default function LoginPage() {
       router.refresh()
     } catch (err: any) {
       setError(err.response?.data?.detail || 'خطا در ورود')
-      // خطا برای ۵ ثانیه نمایش داده میشه (نه یک لحظه)
       setTimeout(() => setError(''), 5000)
     } finally {
       setLoading(false)
