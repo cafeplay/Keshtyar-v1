@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, desc
+from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.core.security import get_current_user
 from app.models.user import User
@@ -13,17 +12,13 @@ from datetime import datetime, timedelta
 router = APIRouter()
 
 @router.get("/recommend")
-async def get_ai_recommendation(
+def get_ai_recommendation(
     user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
-    result = await db.execute(
-        select(SensorData)
-        .where(SensorData.user_id == user.id)
-        .order_by(desc(SensorData.timestamp))
-        .limit(24)
-    )
-    sensor_data = result.scalars().all()
+    sensor_data = db.query(SensorData).filter(
+        SensorData.user_id == user.id
+    ).order_by(SensorData.timestamp.desc()).limit(24).all()
     
     if not sensor_data:
         return {
@@ -34,7 +29,7 @@ async def get_ai_recommendation(
         }
     
     last = sensor_data[0]
-    forecast = await get_weather_forecast(user.latitude, user.longitude)
+    forecast = get_weather_forecast(user.latitude, user.longitude)
     
     history = [
         {
@@ -63,7 +58,7 @@ async def get_ai_recommendation(
         applied_automatically=user.ai_autonomous_mode
     )
     db.add(feedback)
-    await db.commit()
+    db.commit()
     
     if user.ai_autonomous_mode and recommendation.get("action") in ["irrigate", "ventilate"]:
         pass
@@ -71,20 +66,17 @@ async def get_ai_recommendation(
     return recommendation
 
 @router.post("/feedback")
-async def submit_ai_feedback(
+def submit_ai_feedback(
     feedback_id: int,
     applied: bool,
     user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
-    result = await db.execute(
-        select(AIFeedback).where(AIFeedback.id == feedback_id, AIFeedback.user_id == user.id)
-    )
-    feedback = result.scalar_one_or_none()
+    feedback = db.query(AIFeedback).filter(AIFeedback.id == feedback_id, AIFeedback.user_id == user.id).first()
     if not feedback:
         raise HTTPException(status_code=404, detail="یافت نشد")
     
     feedback.user_applied = applied
-    await db.commit()
+    db.commit()
     
     return {"message": "بازخورد ثبت شد"}
