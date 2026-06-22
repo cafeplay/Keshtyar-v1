@@ -6,6 +6,7 @@ DATABASE_URL = settings.DATABASE_URL
 
 engine = create_engine(DATABASE_URL, echo=False, pool_pre_ping=True)
 SessionLocal = sessionmaker(engine, expire_on_commit=False)
+
 Base = declarative_base()
 
 def get_db():
