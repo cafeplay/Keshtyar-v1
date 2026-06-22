@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.core.security import get_current_user
 from app.models.user import User
@@ -18,12 +17,11 @@ class RelayCreate(BaseModel):
     mode: str = "manual"
 
 @router.get("/")
-async def get_relays(
+def get_relays(
     user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
-    result = await db.execute(select(Relay).where(Relay.user_id == user.id))
-    relays = result.scalars().all()
+    relays = db.query(Relay).filter(Relay.user_id == user.id).all()
     return [
         {
             "id": str(r.id),
@@ -36,21 +34,16 @@ async def get_relays(
     ]
 
 @router.post("/")
-async def create_relay(
+def create_relay(
     data: RelayCreate,
     user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
     if data.gpio not in [12, 13, 14, 15]:
         raise HTTPException(status_code=400, detail="GPIO مجاز: 12, 13, 14, 15")
     
-    result = await db.execute(
-        select(Relay).where(
-            Relay.user_id == user.id,
-            Relay.gpio == data.gpio
-        )
-    )
-    if result.scalar_one_or_none():
+    existing = db.query(Relay).filter(Relay.user_id == user.id, Relay.gpio == data.gpio).first()
+    if existing:
         raise HTTPException(status_code=400, detail="این GPIO قبلاً استفاده شده است")
     
     relay = Relay(
@@ -61,8 +54,8 @@ async def create_relay(
         mode=data.mode
     )
     db.add(relay)
-    await db.commit()
-    await db.refresh(relay)
+    db.commit()
+    db.refresh(relay)
     
     return {
         "id": str(relay.id),
@@ -73,24 +66,18 @@ async def create_relay(
     }
 
 @router.post("/{relay_id}/toggle")
-async def toggle_relay(
+def toggle_relay(
     relay_id: int,
     user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
-    result = await db.execute(
-        select(Relay).where(
-            Relay.id == relay_id,
-            Relay.user_id == user.id
-        )
-    )
-    relay = result.scalar_one_or_none()
+    relay = db.query(Relay).filter(Relay.id == relay_id, Relay.user_id == user.id).first()
     if not relay:
         raise HTTPException(status_code=404, detail="رله یافت نشد")
     
     new_state = not relay.state
     relay.state = new_state
-    await db.commit()
+    db.commit()
     
     command_id = str(uuid.uuid4())
     command = CommandLog(
@@ -101,7 +88,7 @@ async def toggle_relay(
         acknowledged=False
     )
     db.add(command)
-    await db.commit()
+    db.commit()
     
     return {
         "id": str(relay.id),
@@ -110,22 +97,16 @@ async def toggle_relay(
     }
 
 @router.delete("/{relay_id}")
-async def delete_relay(
+def delete_relay(
     relay_id: int,
     user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
-    result = await db.execute(
-        select(Relay).where(
-            Relay.id == relay_id,
-            Relay.user_id == user.id
-        )
-    )
-    relay = result.scalar_one_or_none()
+    relay = db.query(Relay).filter(Relay.id == relay_id, Relay.user_id == user.id).first()
     if not relay:
         raise HTTPException(status_code=404, detail="رله یافت نشد")
     
-    await db.delete(relay)
-    await db.commit()
+    db.delete(relay)
+    db.commit()
     
     return {"message": "رله حذف شد"}
