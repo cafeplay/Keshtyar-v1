@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
 from app.core.database import get_db
-from app.core.security import get_current_user, verify_password, get_password_hash
+from app.core.security import get_current_user, get_password_hash
 from app.models.user import User
 from pydantic import BaseModel
 from typing import Optional
+import hashlib
 
 router = APIRouter()
 
@@ -27,7 +28,7 @@ class PasswordUpdate(BaseModel):
     new_password: str
 
 @router.get("/")
-async def get_settings(
+def get_settings(
     user: User = Depends(get_current_user)
 ):
     return {
@@ -48,33 +49,33 @@ async def get_settings(
     }
 
 @router.put("/")
-async def update_settings(
+def update_settings(
     data: SettingsUpdate,
     user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
     for key, value in data.dict(exclude_unset=True).items():
         if value is not None:
             setattr(user, key, value)
     
-    await db.commit()
-    await db.refresh(user)
+    db.commit()
+    db.refresh(user)
     
     return {"message": "تنظیمات ذخیره شد"}
 
 @router.put("/password")
-async def update_password(
+def update_password(
     data: PasswordUpdate,
     user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
-    if not verify_password(data.old_password, user.password_hash):
+    if user.password_hash != hashlib.sha256(data.old_password.encode()).hexdigest():
         raise HTTPException(status_code=400, detail="رمز عبور فعلی اشتباه است")
     
     if len(data.new_password) < 4:
         raise HTTPException(status_code=400, detail="رمز عبور جدید باید حداقل ۴ کاراکتر باشد")
     
-    user.password_hash = get_password_hash(data.new_password)
-    await db.commit()
+    user.password_hash = hashlib.sha256(data.new_password.encode()).hexdigest()
+    db.commit()
     
     return {"message": "رمز عبور تغییر کرد"}
