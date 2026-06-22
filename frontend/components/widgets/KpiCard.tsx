@@ -1,6 +1,7 @@
 'use client'
 
 import { Thermometer, Droplets, Database, CheckCircle2 } from 'lucide-react'
+import { useEffect, useRef } from 'react'
 
 interface KpiCardProps {
   label: string
@@ -39,6 +40,11 @@ export function KpiCard({ label, value, unit, change, icon, chartData }: KpiCard
   const isPositive = typeof change === 'number' ? change > 0 : change === 'پایدار'
   const isGood = typeof change === 'number' ? change > 0 : change === 'پایدار'
   
+  // چاپ در کنسول برای دیباگ
+  useEffect(() => {
+    console.log(`📊 ${label} chartData:`, chartData?.length || 0, 'data points')
+  }, [chartData, label])
+  
   return (
     <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-card p-5 shadow-sm border border-white/40 dark:border-gray-700/40 hover:shadow-md transition-all hover:scale-[1.02] duration-300">
       <div className="flex items-start justify-between">
@@ -61,20 +67,33 @@ export function KpiCard({ label, value, unit, change, icon, chartData }: KpiCard
         </div>
       </div>
       
-      {chartData && chartData.length > 0 && (
+      {/* Sparkline Chart */}
+      {chartData && chartData.length > 1 ? (
         <div className="mt-3 h-10 flex items-end gap-0.5 overflow-hidden">
-          {chartData.slice(-20).map((val, i) => (
-            <div
-              key={i}
-              className="flex-1 bg-emerald-200 dark:bg-emerald-800/50 rounded-t transition-all duration-500"
-              style={{ 
-                height: `${Math.max(10, (val / 100) * 100)}%`,
-                animationDelay: `${i * 0.02}s`,
-                opacity: 0,
-                animation: 'fadeInUp 0.3s ease-out forwards',
-              }}
-            />
-          ))}
+          {chartData.slice(-24).map((val, i) => {
+            const height = Math.max(8, Math.min(100, (val / 100) * 100))
+            return (
+              <div
+                key={i}
+                className="flex-1 bg-emerald-300 dark:bg-emerald-600/50 rounded-t transition-all duration-500"
+                style={{ 
+                  height: `${height}%`,
+                  animationDelay: `${i * 0.02}s`,
+                  opacity: 0,
+                  animation: 'fadeInUp 0.3s ease-out forwards',
+                  minHeight: '4px'
+                }}
+              />
+            )
+          })}
+        </div>
+      ) : chartData && chartData.length === 1 ? (
+        <div className="mt-3 h-10 flex items-center justify-center text-xs text-gray-400">
+          داده کافی برای نمودار نیست
+        </div>
+      ) : (
+        <div className="mt-3 h-10 flex items-center justify-center text-xs text-gray-400">
+          هیچ داده‌ای موجود نیست
         </div>
       )}
     </div>
