@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from app.core.database import get_db
-from app.core.security import create_access_token, get_password_hash
+from app.core.security import create_access_token
 from app.models.user import User
 from pydantic import BaseModel
 import hashlib
@@ -43,7 +43,10 @@ def register(user_data: UserRegister, db: Session = Depends(get_db)):
 def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = db.query(User).filter(User.device_code == form_data.username).first()
     if not user or user.password_hash != hashlib.sha256(form_data.password.encode()).hexdigest():
-        raise HTTPException(status_code=401, detail="کد یکتا یا رمز عبور اشتباه است")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="کد یکتا یا رمز عبور اشتباه است",
+        )
     
     access_token = create_access_token(data={"sub": str(user.id)})
     return {"access_token": access_token, "token_type": "bearer"}
