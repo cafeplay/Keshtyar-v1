@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, desc
+from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.core.security import get_current_user
 from app.models.user import User
@@ -12,38 +11,26 @@ from datetime import datetime, timedelta
 router = APIRouter()
 
 @router.get("/")
-async def get_dashboard_data(
+def get_dashboard_data(
     user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
     # آخرین داده
-    result = await db.execute(
-        select(SensorData)
-        .where(SensorData.user_id == user.id)
-        .order_by(desc(SensorData.timestamp))
-        .limit(1)
-    )
-    last = result.scalar_one_or_none()
+    last = db.query(SensorData).filter(SensorData.user_id == user.id).order_by(SensorData.timestamp.desc()).first()
     
     # تاریخچه ۲۴ ساعت
     since = datetime.utcnow() - timedelta(hours=24)
-    result = await db.execute(
-        select(SensorData)
-        .where(
-            SensorData.user_id == user.id,
-            SensorData.timestamp >= since,
-            SensorData.soil_moisture.isnot(None)
-        )
-        .order_by(SensorData.timestamp.asc())
-    )
-    history = result.scalars().all()
+    history = db.query(SensorData).filter(
+        SensorData.user_id == user.id,
+        SensorData.timestamp >= since,
+        SensorData.soil_moisture.isnot(None)
+    ).order_by(SensorData.timestamp.asc()).all()
     
     # رله‌ها
-    result = await db.execute(select(Relay).where(Relay.user_id == user.id))
-    relays = result.scalars().all()
+    relays = db.query(Relay).filter(Relay.user_id == user.id).all()
     
     # آب‌وهوا
-    forecast = await get_weather_forecast(user.latitude, user.longitude)
+    forecast = get_weather_forecast(user.latitude, user.longitude)
     
     return {
         "temperature": last.temperature if last else None,
