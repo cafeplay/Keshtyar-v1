@@ -38,3 +38,12 @@ def register(user_data: UserRegister, db: Session = Depends(get_db)):
     db.refresh(user)
     
     return {"message": "ثبت‌نام با موفقیت انجام شد", "user_id": user.id}
+
+@router.post("/login")
+def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.device_code == form_data.username).first()
+    if not user or user.password_hash != hashlib.sha256(form_data.password.encode()).hexdigest():
+        raise HTTPException(status_code=401, detail="کد یکتا یا رمز عبور اشتباه است")
+    
+    access_token = create_access_token(data={"sub": str(user.id)})
+    return {"access_token": access_token, "token_type": "bearer"}
