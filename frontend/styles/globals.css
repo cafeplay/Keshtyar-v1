@@ -1,41 +1,25 @@
+/* frontend/styles/globals.css */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   @font-face {
-    font-family: 'SpaceGrotesk';
-    src: url('/fonts/SpaceGrotesk/SpaceGrotesk-Regular.ttf') format('truetype');
+    font-family: 'Vazirmatn';
+    src: url('/fonts/Vazirmatn/Vazirmatn-Regular.woff2') format('woff2');
     font-weight: 400;
     font-display: swap;
   }
   @font-face {
-    font-family: 'SpaceGrotesk';
-    src: url('/fonts/SpaceGrotesk/SpaceGrotesk-Medium.ttf') format('truetype');
-    font-weight: 500;
-    font-display: swap;
-  }
-  @font-face {
-    font-family: 'SpaceGrotesk';
-    src: url('/fonts/SpaceGrotesk/SpaceGrotesk-SemiBold.ttf') format('truetype');
-    font-weight: 600;
-    font-display: swap;
-  }
-  @font-face {
-    font-family: 'SpaceGrotesk';
-    src: url('/fonts/SpaceGrotesk/SpaceGrotesk-Bold.ttf') format('truetype');
+    font-family: 'Vazirmatn';
+    src: url('/fonts/Vazirmatn/Vazirmatn-Bold.woff2') format('woff2');
     font-weight: 700;
-    font-display: swap;
-  }
-  @font-face {
-    font-family: 'SpaceGrotesk';
-    src: url('/fonts/SpaceGrotesk/SpaceGrotesk-Light.ttf') format('truetype');
-    font-weight: 300;
     font-display: swap;
   }
 
   :root {
-    --font-primary: 'SpaceGrotesk', sans-serif;
+    --font-primary: 'Vazirmatn', sans-serif;
   }
 
   * {
@@ -74,6 +58,81 @@
   .dark ::-webkit-scrollbar-thumb {
     background: #4A7C59;
   }
+
+  /* انیمیشن‌ها */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes bounceIn {
+    0% {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+    60% {
+      opacity: 1;
+      transform: scale(1.05);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+    20%, 40%, 60%, 80% { transform: translateX(4px); }
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .animate-fadeInUp {
+    animation: fadeInUp 0.5s ease-out;
+  }
+
+  .animate-bounceIn {
+    animation: bounceIn 0.6s ease-out;
+  }
+
+  .animate-shake {
+    animation: shake 0.5s ease-in-out;
+  }
+
+  .animate-pulse-soft {
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  .animate-slideIn {
+    animation: slideIn 0.3s ease-out;
+  }
+
+  /* تاخیرهای انیمیشن */
+  .delay-100 { animation-delay: 0.1s; }
+  .delay-200 { animation-delay: 0.2s; }
+  .delay-300 { animation-delay: 0.3s; }
+  .delay-400 { animation-delay: 0.4s; }
+  .delay-500 { animation-delay: 0.5s; }
 }
 
 @layer components {
