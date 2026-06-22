@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.core.security import get_current_user
 from app.models.user import User
@@ -23,14 +22,11 @@ class RuleCreate(BaseModel):
     second_threshold: Optional[float] = None
 
 @router.get("/")
-async def get_rules(
+def get_rules(
     user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
-    result = await db.execute(
-        select(AutomationRule).where(AutomationRule.user_id == user.id)
-    )
-    rules = result.scalars().all()
+    rules = db.query(AutomationRule).filter(AutomationRule.user_id == user.id).all()
     
     return [
         {
@@ -52,18 +48,13 @@ async def get_rules(
     ]
 
 @router.post("/")
-async def create_rule(
+def create_rule(
     data: RuleCreate,
     user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
-    result = await db.execute(
-        select(Relay).where(
-            Relay.id == data.relay_id,
-            Relay.user_id == user.id
-        )
-    )
-    if not result.scalar_one_or_none():
+    relay = db.query(Relay).filter(Relay.id == data.relay_id, Relay.user_id == user.id).first()
+    if not relay:
         raise HTTPException(status_code=404, detail="رله یافت نشد")
     
     rule = AutomationRule(
@@ -80,49 +71,37 @@ async def create_rule(
         active=True
     )
     db.add(rule)
-    await db.commit()
-    await db.refresh(rule)
+    db.commit()
+    db.refresh(rule)
     
     return {"id": rule.id, "message": "قانون با موفقیت ایجاد شد"}
 
 @router.post("/{rule_id}/toggle")
-async def toggle_rule(
+def toggle_rule(
     rule_id: int,
     user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
-    result = await db.execute(
-        select(AutomationRule).where(
-            AutomationRule.id == rule_id,
-            AutomationRule.user_id == user.id
-        )
-    )
-    rule = result.scalar_one_or_none()
+    rule = db.query(AutomationRule).filter(AutomationRule.id == rule_id, AutomationRule.user_id == user.id).first()
     if not rule:
         raise HTTPException(status_code=404, detail="قانون یافت نشد")
     
     rule.active = not rule.active
-    await db.commit()
+    db.commit()
     
     return {"id": rule.id, "active": rule.active}
 
 @router.delete("/{rule_id}")
-async def delete_rule(
+def delete_rule(
     rule_id: int,
     user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
-    result = await db.execute(
-        select(AutomationRule).where(
-            AutomationRule.id == rule_id,
-            AutomationRule.user_id == user.id
-        )
-    )
-    rule = result.scalar_one_or_none()
+    rule = db.query(AutomationRule).filter(AutomationRule.id == rule_id, AutomationRule.user_id == user.id).first()
     if not rule:
         raise HTTPException(status_code=404, detail="قانون یافت نشد")
     
-    await db.delete(rule)
-    await db.commit()
+    db.delete(rule)
+    db.commit()
     
     return {"message": "قانون حذف شد"}
