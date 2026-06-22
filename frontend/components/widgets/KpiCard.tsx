@@ -40,7 +40,7 @@ export function KpiCard({ label, value, unit, change, icon, chartData }: KpiCard
   const isGood = typeof change === 'number' ? change > 0 : change === 'پایدار'
   
   return (
-    <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-card p-5 shadow-sm border border-white/40 dark:border-gray-700/40 hover:shadow-md transition-all">
+    <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-card p-5 shadow-sm border border-white/40 dark:border-gray-700/40 hover:shadow-md transition-all hover:scale-[1.02] duration-300">
       <div className="flex items-start justify-between">
         <div>
           <span className="text-sm text-gray-500 dark:text-gray-400">{label}</span>
@@ -62,12 +62,17 @@ export function KpiCard({ label, value, unit, change, icon, chartData }: KpiCard
       </div>
       
       {chartData && chartData.length > 0 && (
-        <div className="mt-3 h-10 flex items-end gap-0.5">
+        <div className="mt-3 h-10 flex items-end gap-0.5 overflow-hidden">
           {chartData.slice(-20).map((val, i) => (
             <div
               key={i}
-              className="flex-1 bg-emerald-200 dark:bg-emerald-800/50 rounded-t transition-all"
-              style={{ height: `${Math.max(10, (val / 100) * 100)}%` }}
+              className="flex-1 bg-emerald-200 dark:bg-emerald-800/50 rounded-t transition-all duration-500"
+              style={{ 
+                height: `${Math.max(10, (val / 100) * 100)}%`,
+                animationDelay: `${i * 0.02}s`,
+                opacity: 0,
+                animation: 'fadeInUp 0.3s ease-out forwards',
+              }}
             />
           ))}
         </div>
