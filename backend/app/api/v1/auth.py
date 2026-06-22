@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from app.core.database import get_db
-from app.core.security import verify_password, create_access_token, get_password_hash
+from app.core.security import create_access_token, get_password_hash
 from app.models.user import User
 from pydantic import BaseModel
 import hashlib
