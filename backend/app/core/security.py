@@ -5,18 +5,28 @@ from passlib.context import CryptContext
 from fastapi import HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 from app.core.config import settings
 from app.core.database import get_db
 from app.models.user import User
+import hashlib
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
+def hash_password_first(password: str) -> str:
+    """ابتدا رمز رو با SHA256 هش می‌کنیم تا طولش دقیقاً ۶۴ بایت بشه"""
+    return hashlib.sha256(password.encode()).hexdigest()
+
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
+    """بررسی رمز عبور با هش SHA256 اولیه"""
+    hashed_plain = hash_password_first(plain_password)
+    return pwd_context.verify(hashed_plain, hashed_password)
 
 def get_password_hash(password: str) -> str:
-    return pwd_context.hash(password)
+    """هش کردن رمز عبور با bcrypt (بعد از SHA256)"""
+    hashed = hash_password_first(password)
+    return pwd_context.hash(hashed)
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     to_encode = data.copy()
@@ -41,7 +51,6 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession
     except JWTError:
         raise credentials_exception
     
-    from sqlalchemy import select
     result = await db.execute(select(User).where(User.id == int(user_id)))
     user = result.scalar_one_or_none()
     if user is None:
