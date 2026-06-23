@@ -8,17 +8,30 @@ import { WeatherWidget } from '@/components/widgets/WeatherWidget'
 import { SoilChart } from '@/components/widgets/SoilChart'
 import { useSensorData } from '@/hooks/useSensorData'
 import { useAI } from '@/hooks/useAI'
-import { Leaf, Plus } from 'lucide-react'
+import { Leaf, Plus, LogOut } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { useAuth } from '@/hooks/useAuth'
 
 export default function DashboardPage() {
-  const { data, loading } = useSensorData()
+  const router = useRouter()
+  const { logout } = useAuth()
+  const { data, loading, refetch } = useSensorData()
   const { recommendation, fetchAI, loading: aiLoading } = useAI()
   
+  // آپدیت داده‌ها هر ۳۰ ثانیه (بدون رفرش صفحه)
   useEffect(() => {
     fetchAI()
-    const interval = setInterval(fetchAI, 60000)
+    const interval = setInterval(() => {
+      refetch()
+      fetchAI()
+    }, 30000)
     return () => clearInterval(interval)
   }, [])
+  
+  const handleLogout = () => {
+    logout()
+    router.push('/login')
+  }
   
   if (loading) {
     return (
@@ -45,16 +58,24 @@ export default function DashboardPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="w-10 h-10 rounded-full bg-emerald-600 text-white hover:bg-emerald-700 transition flex items-center justify-center hover:scale-105 active:scale-95">
-            <Plus className="w-5 h-5" />
+          <button 
+            onClick={() => refetch()}
+            className="w-10 h-10 rounded-full bg-emerald-600 text-white hover:bg-emerald-700 transition flex items-center justify-center hover:scale-105 active:scale-95"
+            title="بروزرسانی داده‌ها"
+          >
+            <Plus className="w-5 h-5 rotate-45" />
           </button>
-          <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 flex items-center justify-center font-bold">
-            ا
-          </div>
+          <button 
+            onClick={handleLogout}
+            className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition flex items-center justify-center hover:scale-105 active:scale-95"
+            title="خروج"
+          >
+            <LogOut className="w-5 h-5" />
+          </button>
         </div>
       </div>
       
-      {/* KPI Grid - Responsive for mobile */}
+      {/* KPI Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="animate-fadeInUp delay-100">
           <KpiCard 
@@ -97,7 +118,7 @@ export default function DashboardPage() {
         </div>
       </div>
       
-      {/* Chart + AI - Responsive */}
+      {/* Chart + AI */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2 animate-fadeInUp delay-200">
           <SoilChart data={data?.history || []} />
@@ -111,12 +132,12 @@ export default function DashboardPage() {
         </div>
       </div>
       
-      {/* Relays - Responsive */}
+      {/* Relays */}
       <div className="animate-fadeInUp delay-400">
         <RelayWidget relays={data?.relays || []} />
       </div>
       
-      {/* Weather - Responsive */}
+      {/* Weather */}
       <div className="animate-fadeInUp delay-500">
         <WeatherWidget forecast={data?.forecast || {}} />
       </div>
