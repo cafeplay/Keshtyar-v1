@@ -1,7 +1,6 @@
 'use client'
 
-import { Thermometer, Droplets, Database, CheckCircle2 } from 'lucide-react'
-import { useEffect, useRef } from 'react'
+import { Thermometer, Droplets, Database, CheckCircle2, TrendingUp, TrendingDown } from 'lucide-react'
 
 interface KpiCardProps {
   label: string
@@ -37,32 +36,45 @@ const iconMap = {
 
 export function KpiCard({ label, value, unit, change, icon, chartData }: KpiCardProps) {
   const { Icon, bg, color } = iconMap[icon]
-  const isPositive = typeof change === 'number' ? change > 0 : change === 'پایدار'
-  const isGood = typeof change === 'number' ? change > 0 : change === 'پایدار'
   
-  // چاپ در کنسول برای دیباگ
-  useEffect(() => {
-    console.log(`📊 ${label} chartData:`, chartData?.length || 0, 'data points')
-  }, [chartData, label])
+  // تبدیل تغییر به نمایش زیبا
+  const renderChange = () => {
+    if (typeof change === 'string') {
+      return <span className="text-emerald-600 dark:text-emerald-400">✓ {change}</span>
+    }
+    if (change > 0) {
+      return (
+        <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+          <TrendingUp className="w-3 h-3" />
+          ↑ {change} افزایش
+        </span>
+      )
+    }
+    if (change < 0) {
+      return (
+        <span className="text-orange-500 dark:text-orange-400 flex items-center gap-1">
+          <TrendingDown className="w-3 h-3" />
+          ↓ {Math.abs(change)} کاهش
+        </span>
+      )
+    }
+    return <span className="text-gray-400">بدون تغییر</span>
+  }
   
   return (
     <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-card p-5 shadow-sm border border-white/40 dark:border-gray-700/40 hover:shadow-md transition-all hover:scale-[1.02] duration-300">
       <div className="flex items-start justify-between">
-        <div>
-          <span className="text-sm text-gray-500 dark:text-gray-400">{label}</span>
+        <div className="flex-1 min-w-0">
+          <span className="text-sm font-semibold text-gray-500 dark:text-gray-400">{label}</span>
           <div className="flex items-baseline gap-1 mt-1">
-            <span className="text-2xl font-bold text-gray-800 dark:text-white">{value}</span>
-            {unit && <span className="text-sm text-gray-400 dark:text-gray-500"> {unit}</span>}
+            <span className="text-2xl font-extrabold text-gray-800 dark:text-white">{value}</span>
+            {unit && <span className="text-sm font-medium text-gray-400 dark:text-gray-500"> {unit}</span>}
           </div>
-          <span className={`text-xs font-medium ${
-            isGood 
-              ? 'text-emerald-600 dark:text-emerald-400' 
-              : 'text-orange-500 dark:text-orange-400'
-          }`}>
-            {typeof change === 'number' ? (isPositive ? '↑' : '↓') : '✓'} {change}
-          </span>
+          <div className="text-xs font-medium mt-1">
+            {renderChange()}
+          </div>
         </div>
-        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${bg}`}>
+        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 ${bg}`}>
           <Icon className={`w-6 h-6 ${color}`} />
         </div>
       </div>
@@ -88,12 +100,12 @@ export function KpiCard({ label, value, unit, change, icon, chartData }: KpiCard
           })}
         </div>
       ) : chartData && chartData.length === 1 ? (
-        <div className="mt-3 h-10 flex items-center justify-center text-xs text-gray-400">
-          داده کافی برای نمودار نیست
+        <div className="mt-3 h-10 flex items-center justify-center text-xs text-gray-400 font-medium">
+          داده کافی نیست
         </div>
       ) : (
-        <div className="mt-3 h-10 flex items-center justify-center text-xs text-gray-400">
-          هیچ داده‌ای موجود نیست
+        <div className="mt-3 h-10 flex items-center justify-center text-xs text-gray-400 font-medium">
+          بدون داده
         </div>
       )}
     </div>
