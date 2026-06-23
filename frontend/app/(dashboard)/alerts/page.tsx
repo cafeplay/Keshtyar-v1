@@ -238,7 +238,7 @@ export default function AlertsPage() {
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-white font-medium focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition"
                   placeholder='مثال: هشدار! رطوبت خاک به {value}% رسیده است.'
                 />
-                <p className="text-xs text-gray-400 mt-1">از {value} برای نمایش مقدار استفاده کنید</p>
+                <p className="text-xs text-gray-400 mt-1">از {"{value}"} برای نمایش مقدار استفاده کنید</p>
               </div>
             </div>
             
